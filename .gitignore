@@ -1,0 +1,7 @@
+.idea/
+out/
+.claude/
+*.test
+coverage.out
+coverage.html
+.env
