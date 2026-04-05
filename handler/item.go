@@ -39,20 +39,18 @@ func (h *ItemHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var req domain.Item
 	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		http.Error(w, "invalid request body", http.StatusBadRequest)
+		writeError(w, http.StatusBadRequest, "invalid request body", "BAD_REQUEST")
 		return
 	}
 
 	item, err := h.service.Create(r.Context(), req.Data)
 	if err != nil {
-		log.Printf("Create failed: %v", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		log.Printf("POST /items Create failed: %v", err)
+		writeError(w, http.StatusInternalServerError, "internal server error", "INTERNAL")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	_ = json.NewEncoder(w).Encode(item) // error is non-actionable after headers are sent
+	writeJSON(w, http.StatusCreated, item)
 }
 
 // Get handles GET /items/{id}. It extracts the ID from the URL, retrieves
@@ -63,14 +61,13 @@ func (h *ItemHandler) Get(w http.ResponseWriter, r *http.Request) {
 	item, err := h.service.Get(r.Context(), id)
 	if err != nil {
 		if errors.Is(err, domain.ErrNotFound) {
-			http.Error(w, "item not found", http.StatusNotFound)
+			writeError(w, http.StatusNotFound, "item not found", "NOT_FOUND")
 			return
 		}
-		log.Printf("Get failed: %v", err)
-		http.Error(w, "internal server error", http.StatusInternalServerError)
+		log.Printf("GET /items/%s Get failed: %v", id, err)
+		writeError(w, http.StatusInternalServerError, "internal server error", "INTERNAL")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(item) // error is non-actionable after headers are sent
+	writeJSON(w, http.StatusOK, item)
 }

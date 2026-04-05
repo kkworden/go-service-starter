@@ -1,7 +1,28 @@
+# IDE
 .idea/
+.vscode/
+*.swp
+*.swo
+
+# Build artifacts
 out/
-.claude/
 *.test
+
+# Coverage
 coverage.out
 coverage.html
+
+# Environment / secrets
 .env
+
+# Air (live-reload) temp files
+tmp/
+
+# Go test cache artifacts
+*.prof
+
+# macOS
+.DS_Store
+
+# Claude agent working directory
+.claude/

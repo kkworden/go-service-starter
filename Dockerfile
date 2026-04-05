@@ -16,8 +16,9 @@ COPY . .
 # Build the application
 RUN CGO_ENABLED=0 GOOS=linux go build -o /server .
 
-# Final stage
-FROM alpine:latest
+# Final stage — pin to a specific Alpine minor version to avoid surprise breakage.
+# Bump intentionally when you need a newer Alpine (e.g., security patch).
+FROM alpine:3.21
 
 WORKDIR /
 

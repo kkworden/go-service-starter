@@ -1,0 +1,15 @@
+# Prevent secrets, build artifacts, and dev-only files from leaking into
+# the Docker build context (and intermediate image layers).
+.git
+.idea
+.vscode
+.env
+.air.toml
+out/
+tmp/
+*.test
+*.prof
+coverage.*
+helm/
+.claude/
+.DS_Store

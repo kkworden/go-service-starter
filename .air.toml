@@ -1,0 +1,32 @@
+# air configuration for live-reload during local development.
+# Install: go install github.com/air-verse/air@latest
+# Run via: make watch
+
+root = "."
+tmp_dir = "out/air"
+
+[build]
+  cmd = "go build -o out/air/main ."
+  bin = "out/air/main"
+  delay = 500
+  exclude_dir = ["out", "helm", "migrations", ".git"]
+  exclude_regex = ["_test\\.go$"]
+  include_ext = ["go"]
+  kill_delay = "1s"
+  rerun = false
+  send_interrupt = true
+
+[log]
+  main_only = false
+  time = true
+
+[color]
+  app = ""
+  build = "yellow"
+  main = "magenta"
+  runner = "green"
+  watcher = "cyan"
+
+[screen]
+  clear_on_rebuild = true
+  keep_scroll = true

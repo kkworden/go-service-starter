@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
-	"strings"
 	"testing"
 
 	"go-service-starter/domain"
@@ -50,6 +49,12 @@ func withChiParam(r *http.Request, key, value string) *http.Request {
 	rctx := chi.NewRouteContext()
 	rctx.URLParams.Add(key, value)
 	return r.WithContext(context.WithValue(r.Context(), chi.RouteCtxKey, rctx))
+}
+
+// errResponse is a test helper to decode error JSON responses.
+type errResponse struct {
+	Error string `json:"error"`
+	Code  string `json:"code"`
 }
 
 // ---------------------------------------------------------------------------
@@ -118,6 +123,11 @@ func TestItemHandler_Create(t *testing.T) {
 		if rec.Code != http.StatusBadRequest {
 			t.Errorf("status: got %d, want %d", rec.Code, http.StatusBadRequest)
 		}
+		var resp errResponse
+		json.NewDecoder(rec.Body).Decode(&resp)
+		if resp.Code != "BAD_REQUEST" {
+			t.Errorf("error code: got %q, want %q", resp.Code, "BAD_REQUEST")
+		}
 	})
 
 	t.Run("returns 400 for empty body", func(t *testing.T) {
@@ -148,6 +158,11 @@ func TestItemHandler_Create(t *testing.T) {
 
 		if rec.Code != http.StatusInternalServerError {
 			t.Errorf("status: got %d, want %d", rec.Code, http.StatusInternalServerError)
+		}
+		var resp errResponse
+		json.NewDecoder(rec.Body).Decode(&resp)
+		if resp.Code != "INTERNAL" {
+			t.Errorf("error code: got %q, want %q", resp.Code, "INTERNAL")
 		}
 	})
 
@@ -237,6 +252,11 @@ func TestItemHandler_Get(t *testing.T) {
 		if rec.Code != http.StatusNotFound {
 			t.Errorf("status: got %d, want %d", rec.Code, http.StatusNotFound)
 		}
+		var resp errResponse
+		json.NewDecoder(rec.Body).Decode(&resp)
+		if resp.Code != "NOT_FOUND" {
+			t.Errorf("error code: got %q, want %q", resp.Code, "NOT_FOUND")
+		}
 	})
 
 	t.Run("returns 500 for non-not-found service errors", func(t *testing.T) {
@@ -288,9 +308,10 @@ func TestItemHandler_Get(t *testing.T) {
 		if rec.Code != http.StatusNotFound {
 			t.Errorf("status: got %d, want %d", rec.Code, http.StatusNotFound)
 		}
-		body := rec.Body.String()
-		if strings.Contains(body, "ItemService") {
-			t.Error("response body should not contain internal type names")
+		var resp errResponse
+		json.NewDecoder(rec.Body).Decode(&resp)
+		if resp.Error != "item not found" {
+			t.Errorf("error message: got %q, want %q", resp.Error, "item not found")
 		}
 	})
 }

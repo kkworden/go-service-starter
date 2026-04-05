@@ -86,15 +86,17 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-livenessProbe:
-  httpGet:
-    path: /
-    port: 8080
-readinessProbe:
-  httpGet:
-    path: /
-    port: 8080
+# Application configuration (non-sensitive). Injected as env vars via ConfigMap.
+config:
+  port: "8080"
+
+# Sensitive configuration. Injected as env vars via Secret.
+# Override these per-environment — never commit real values here.
+# databaseReadURL defaults to databaseURL when left empty (single-instance Postgres).
+# Set it to a read replica connection string in production.
+secrets:
+  databaseURL: "postgres://starter:starter@postgres:5432/starter?sslmode=disable"
+  databaseReadURL: ""
 
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:

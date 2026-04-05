@@ -44,14 +44,19 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          {{- with .Values.livenessProbe }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "..fullname" . }}-config
+            - secretRef:
+                name: {{ include "..fullname" . }}-secret
           livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
+            httpGet:
+              path: /healthz
+              port: http
           readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            httpGet:
+              path: /readyz
+              port: http
           {{- with .Values.resources }}
           resources:
             {{- toYaml . | nindent 12 }}

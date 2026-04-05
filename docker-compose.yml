@@ -1,0 +1,29 @@
+# Local development stack.
+# Starts Postgres only — the API is run separately via `make run` so that
+# live-reload and logs stay in the foreground terminal.
+#
+# Usage:
+#   make db/up      — start Postgres in the background
+#   make db/down    — stop and remove the container
+#   make db/psql    — open a psql session
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: starter
+      POSTGRES_PASSWORD: starter
+      POSTGRES_DB: starter
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U starter -d starter"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:
